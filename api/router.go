@@ -46,7 +46,7 @@ func (r routerImpl) PostMetric(ctx *fasthttp.RequestCtx) {
 
 	if key != nil {
 		log.Logger().Infof("PostMetric %s", key)
-		_, err := r.metricSrv.Save(key.(string), metricdata.MetricInput{})
+		_, err := r.metricSrv.Save(key.(string), input)
 
 		var erroWrap errorwrapper.ErrorWrapper
 
