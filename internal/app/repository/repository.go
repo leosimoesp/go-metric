@@ -58,8 +58,6 @@ func (s storage) GetAllGreaterThan(key string, id int64) ([]*metricdata.Metric, 
 		}
 	}
 
-	//s.logDB()
-
 	return metrics, nil
 }
 
@@ -67,8 +65,6 @@ func (s storage) RemoveOld(key string, id int64) (int64, error) {
 	log.Logger().Infof("Executing RemoveOld %s", key)
 	s.Lock()
 	defer s.Unlock()
-
-	s.logDB()
 
 	if records, ok := s.values[key]; ok && len(records) > 0 {
 		lastIndex := -1
@@ -105,8 +101,6 @@ func (s storage) Save(key string, metric metricdata.Metric) (int64, error) {
 		s.values[key] = []*metricdata.Metric{&metric}
 	}
 
-	//s.logDB()
-
 	return id, nil
 }
 
@@ -118,14 +112,4 @@ func (s storage) GetAllKeys() ([]string, error) {
 	}
 
 	return keys, nil
-}
-
-func (s storage) logDB() {
-	for k, metrics := range s.values {
-		log.Logger().Printf("Key %s => %d\n", k, len(metrics))
-
-		for _, metric := range metrics {
-			log.Logger().Printf("Key %s => %v\n", k, metric)
-		}
-	}
 }
