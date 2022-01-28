@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/leosimoesp/go-metric/internal/app/metricdata"
+	"github.com/leosimoesp/go-metric/pkg/log"
 	"github.com/leosimoesp/go-metric/pkg/timehelper"
 )
 
@@ -56,10 +57,13 @@ func (s storage) GetAllGreaterThan(key string, id int64) ([]*metricdata.Metric, 
 		}
 	}
 
+	//s.logDB()
+
 	return metrics, nil
 }
 
 func (s storage) RemoveOld(key string, id int64) (int64, error) {
+	log.Logger().Infof("Executing RemoveOld %s", key)
 	s.Lock()
 	defer s.Unlock()
 
@@ -71,6 +75,7 @@ func (s storage) RemoveOld(key string, id int64) (int64, error) {
 			}
 		}
 		if lastIndex > 0 && lastIndex+1 < len(records) {
+			log.Logger().Infof("RemoveOld total excluded %d", lastIndex+1)
 			newValues := records[lastIndex+1:]
 			s.values[key] = newValues
 			return int64(lastIndex + 1), nil
@@ -96,5 +101,17 @@ func (s storage) Save(key string, metric metricdata.Metric) (int64, error) {
 		s.values[key] = []*metricdata.Metric{&metric}
 	}
 
+	//s.logDB()
+
 	return id, nil
+}
+
+func (s storage) logDB() {
+	for k, metrics := range s.values {
+		log.Logger().Printf("Key %s => %d\n", k, len(metrics))
+
+		for _, metric := range metrics {
+			log.Logger().Printf("Key %s => %v\n", k, metric)
+		}
+	}
 }
