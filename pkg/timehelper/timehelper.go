@@ -6,6 +6,10 @@ func CreateTimestamp() int64 {
 	return time.Now().Unix()
 }
 
+func TimestampFromTime(t time.Time) int64 {
+	return t.Unix()
+}
+
 func FromTimeToInt(t time.Time) int64 {
 	return t.Unix()
 }
