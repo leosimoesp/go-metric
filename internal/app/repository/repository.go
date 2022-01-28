@@ -2,11 +2,13 @@ package repository
 
 import (
 	"sync"
+	"time"
 
 	"github.com/leosimoesp/go-metric/internal/app/metricdata"
 	"github.com/leosimoesp/go-metric/pkg/timehelper"
 )
 
+//go:generate mockery --name=MetricRepo --output=./mocks
 type MetricRepo interface {
 	Get(key string, id int64) (*metricdata.Metric, error)
 	GetAllGreaterThan(key string, id int64) ([]*metricdata.Metric, error)
@@ -82,7 +84,11 @@ func (s storage) Save(key string, metric metricdata.Metric) (int64, error) {
 	s.Lock()
 	defer s.Unlock()
 
-	id := timehelper.CreateTimestamp()
+	now := time.Now()
+
+	id := timehelper.TimestampFromTime(now)
+	metric.CreatedAt = now
+	metric.ID = id
 
 	if records, ok := s.values[key]; ok && len(records) > 0 {
 		s.values[key] = append(s.values[key], &metric)

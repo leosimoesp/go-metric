@@ -70,3 +70,31 @@ func TestGetLastHourTimestamp(t *testing.T) {
 		})
 	}
 }
+
+func TestTimestampFromTime(t *testing.T) {
+	now := time.Now()
+
+	type args struct {
+		t time.Time
+	}
+	tests := []struct {
+		name string
+		args args
+		want int64
+	}{
+		{
+			name: "[1]-Should create a timestamp from time arg",
+			args: args{
+				t: now,
+			},
+			want: now.Unix(),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := TimestampFromTime(tt.args.t); got != tt.want {
+				t.Errorf("TimestampFromTime() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
