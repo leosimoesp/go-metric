@@ -15,6 +15,7 @@ type MetricRepo interface {
 	GetAllGreaterThan(key string, id int64) ([]*metricdata.Metric, error)
 	RemoveOld(key string, id int64) (int64, error)
 	Save(key string, metric metricdata.Metric) (int64, error)
+	GetAllKeys() ([]string, error)
 }
 
 type storage struct {
@@ -57,8 +58,6 @@ func (s storage) GetAllGreaterThan(key string, id int64) ([]*metricdata.Metric, 
 		}
 	}
 
-	//s.logDB()
-
 	return metrics, nil
 }
 
@@ -74,7 +73,8 @@ func (s storage) RemoveOld(key string, id int64) (int64, error) {
 				lastIndex = k
 			}
 		}
-		if lastIndex > 0 && lastIndex+1 < len(records) {
+
+		if lastIndex > -1 && lastIndex+1 <= len(records) {
 			log.Logger().Infof("RemoveOld total excluded %d", lastIndex+1)
 			newValues := records[lastIndex+1:]
 			s.values[key] = newValues
@@ -101,17 +101,15 @@ func (s storage) Save(key string, metric metricdata.Metric) (int64, error) {
 		s.values[key] = []*metricdata.Metric{&metric}
 	}
 
-	//s.logDB()
-
 	return id, nil
 }
 
-func (s storage) logDB() {
-	for k, metrics := range s.values {
-		log.Logger().Printf("Key %s => %d\n", k, len(metrics))
+func (s storage) GetAllKeys() ([]string, error) {
+	keys := []string{}
 
-		for _, metric := range metrics {
-			log.Logger().Printf("Key %s => %v\n", k, metric)
-		}
+	for k, _ := range s.values {
+		keys = append(keys, k)
 	}
+
+	return keys, nil
 }

@@ -1,10 +1,10 @@
 package timehelper
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
+	"github.com/leosimoesp/go-metric/pkg/log"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -31,7 +31,7 @@ func TestCreateTimestamp(t *testing.T) {
 	}
 }
 
-func TestCreateTimestampOld(t *testing.T) {
+func TestCreateTimestampCompare(t *testing.T) {
 
 	now := CreateTimestamp()
 
@@ -41,7 +41,7 @@ func TestCreateTimestampOld(t *testing.T) {
 	time.Sleep(1 * time.Second)
 	d2 := CreateTimestamp()
 
-	fmt.Println(d1 == d2, now, lastHour, now-lastHour)
+	log.Logger().Info(d1 == d2, now, lastHour, now-lastHour)
 	assert.Greater(t, d2, d1, "The d2 time should be greather than d1.")
 }
 
