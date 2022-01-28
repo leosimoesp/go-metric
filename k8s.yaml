@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metric-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metric-api
+  template:
+    metadata:
+      labels:
+        app: metric-api
+    spec:
+      containers:
+        - image: leosimoesp/metric-api:v1.0
+          imagePullPolicy: IfNotPresent
+          name: metric-api
+          env:
+            - name: PORT
+              value: "9000"
+            - name: REMOVE_METRICS_INTERVAL_IN_MINUTES
+              value: "15"
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: "1"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: metric-api
+spec:
+  selector:
+    app: metric-api
+  ports:
+    - name: metric-api
+      port: 9000
