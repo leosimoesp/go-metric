@@ -27,15 +27,43 @@ type metricInst struct {
 }
 
 func NewMetricService() MetricService {
-
 	repo := repository.NewMetricRepo()
 	scheduler := gocron.NewScheduler(time.UTC)
 
-	scheduler.StartAsync()
-
-	return metricInst{
+	inst := metricInst{
 		metricRepo: repo,
 		scheduler:  scheduler,
+	}
+
+	scheduledTimeInMin, err := strconv.Atoi(os.Getenv(config.RemoveMetricsIntervalInMin))
+
+	if err != nil {
+		log.Logger().Errorf("scheduleRemove %v", err)
+	}
+
+	scheduler.Every(scheduledTimeInMin).Minute().Do(func() {
+		inst.scheduleRemove()
+	})
+
+	scheduler.StartAsync()
+
+	return inst
+}
+
+func (m metricInst) scheduleRemove() {
+
+	keys, err := m.metricRepo.GetAllKeys()
+
+	if err != nil {
+		log.Logger().Errorf("scheduleRemove %v", err)
+	}
+
+	if len(keys) > 0 {
+		startID := timehelper.GetLastHourTimestamp()
+
+		for _, key := range keys {
+			m.metricRepo.RemoveOld(key, startID)
+		}
 	}
 }
 
@@ -69,17 +97,6 @@ func (m metricInst) CalculateSumMetrics(key string) (int64, error) {
 	for _, metric := range metrics {
 		atomic.AddInt64(&sum, metric.Value)
 	}
-
-	scheduledTimeInMin, err := strconv.Atoi(os.Getenv(config.RemoveMetricsIntervalInMin))
-
-	if err != nil {
-		log.Logger().Errorf("CalculateSumMetrics %v", err)
-		return 0, err
-	}
-
-	m.scheduler.Every(scheduledTimeInMin).Minute().Do(func() {
-		m.metricRepo.RemoveOld(key, startID)
-	})
 
 	return sum, nil
 }
