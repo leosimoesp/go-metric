@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -14,6 +13,7 @@ import (
 	"github.com/leosimoesp/go-metric/internal/app/repository"
 	"github.com/leosimoesp/go-metric/internal/app/repository/mocks"
 	"github.com/leosimoesp/go-metric/pkg/errorwrapper"
+	"github.com/leosimoesp/go-metric/pkg/log"
 	"github.com/leosimoesp/go-metric/pkg/timehelper"
 	"github.com/stretchr/testify/mock"
 )
@@ -122,7 +122,7 @@ func Test_print(t *testing.T) {
 
 	fiveSecondsBefore := time.Now().Add(-5 * time.Second).Unix()
 
-	fmt.Println(nowTimestamp, lastHourTimestamp, nowTimestamp-lastHourTimestamp, fiveSecondsBefore)
+	log.Logger().Info(nowTimestamp, lastHourTimestamp, nowTimestamp-lastHourTimestamp, fiveSecondsBefore)
 }
 
 func Test_metricInst_CalculateSumMetrics(t *testing.T) {
