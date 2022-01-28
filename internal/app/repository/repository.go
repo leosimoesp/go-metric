@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/leosimoesp/go-metric/internal/app/metricdata"
+	"github.com/leosimoesp/go-metric/pkg/log"
 	"github.com/leosimoesp/go-metric/pkg/timehelper"
 )
 
@@ -14,6 +15,7 @@ type MetricRepo interface {
 	GetAllGreaterThan(key string, id int64) ([]*metricdata.Metric, error)
 	RemoveOld(key string, id int64) (int64, error)
 	Save(key string, metric metricdata.Metric) (int64, error)
+	GetAllKeys() ([]string, error)
 }
 
 type storage struct {
@@ -60,6 +62,7 @@ func (s storage) GetAllGreaterThan(key string, id int64) ([]*metricdata.Metric, 
 }
 
 func (s storage) RemoveOld(key string, id int64) (int64, error) {
+	log.Logger().Infof("Executing RemoveOld %s", key)
 	s.Lock()
 	defer s.Unlock()
 
@@ -70,7 +73,9 @@ func (s storage) RemoveOld(key string, id int64) (int64, error) {
 				lastIndex = k
 			}
 		}
-		if lastIndex > 0 && lastIndex+1 < len(records) {
+
+		if lastIndex > -1 && lastIndex+1 <= len(records) {
+			log.Logger().Infof("RemoveOld total excluded %d", lastIndex+1)
 			newValues := records[lastIndex+1:]
 			s.values[key] = newValues
 			return int64(lastIndex + 1), nil
@@ -97,4 +102,14 @@ func (s storage) Save(key string, metric metricdata.Metric) (int64, error) {
 	}
 
 	return id, nil
+}
+
+func (s storage) GetAllKeys() ([]string, error) {
+	keys := []string{}
+
+	for k, _ := range s.values {
+		keys = append(keys, k)
+	}
+
+	return keys, nil
 }
