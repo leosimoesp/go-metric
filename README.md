@@ -58,13 +58,17 @@ At k8s yaml file set image to:
 docker build -t leosimoesp/metric-api:v1.0 --build-arg PORT=9000 .
 
 kind create cluster --name metrics
+
 kubectl create namespace metrics
 
 kind load docker-image <name_of_image> --name <k8s_cluster_name>
+
 kind load docker-image leosimoesp/metric-api:v1.0 --name metrics
 
 kubectl apply -f k8s.yaml -n metrics
+
 kubectl get pods -n metrics
+
 Get de pod id and then execute
 
 kubectl port-forward <pod_id> 9000:9000 -n <namespace>
@@ -83,13 +87,17 @@ At k8s yaml file set image to:
 
  
 kind create cluster --name metrics
+
 kubectl create namespace metrics
 
 kind load docker-image <name_of_image> --name <k8s_cluster_name>
+
 kind load docker-image leosimoesp/metric-api:v1.0 --name metrics
 
 kubectl apply -f k8s.yaml -n metrics
+
 kubectl get pods -n metrics
+
 Get de pod id and then execute
 
 kubectl port-forward <pod_id> 9000:9000 -n <namespace>
