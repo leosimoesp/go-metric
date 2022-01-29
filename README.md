@@ -48,4 +48,51 @@ To get the sum of more recently metrics:
 ```shell
  curl -X GET -H 'Content-Type: application/json'  http://localhost:9000/metric/​active_visitors/sum
 ```
+## Running only local without publish docker image
+docker login
+
+At k8s yaml file set image to:
+
+ imagePullPolicy: Never
+
+docker build -t leosimoesp/metric-api:v1.0 --build-arg PORT=9000 .
+
+kind create cluster --name metrics
+kubectl create namespace metrics
+
+kind load docker-image <name_of_image> --name <k8s_cluster_name>
+kind load docker-image leosimoesp/metric-api:v1.0 --name metrics
+
+kubectl apply -f k8s.yaml -n metrics
+kubectl get pods -n metrics
+Get de pod id and then execute
+
+kubectl port-forward <pod_id> 9000:9000 -n <namespace>
+
+kubectl port-forward metric-api-66566b9585-q9sfh 9000:9000 -n metrics
+
+## Running local with published docker image
+
+docker login
+
+At k8s yaml file set image to:
+
+ imagePullPolicy: IfNotPresent
+
+ docker build -t leosimoesp/metric-api:v1.0 --build-arg PORT=9000 .
+
+ 
+kind create cluster --name metrics
+kubectl create namespace metrics
+
+kind load docker-image <name_of_image> --name <k8s_cluster_name>
+kind load docker-image leosimoesp/metric-api:v1.0 --name metrics
+
+kubectl apply -f k8s.yaml -n metrics
+kubectl get pods -n metrics
+Get de pod id and then execute
+
+kubectl port-forward <pod_id> 9000:9000 -n <namespace>
+
+kubectl port-forward metric-api-66566b9585-q9sfh 9000:9000 -n metrics
 

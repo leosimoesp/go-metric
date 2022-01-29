@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - image: leosimoesp/metric-api:v1.0
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Never
           name: metric-api
           env:
             - name: PORT
